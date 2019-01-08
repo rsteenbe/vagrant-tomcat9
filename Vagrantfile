@@ -10,6 +10,9 @@ Vagrant.configure("2") do |config|
   config.vm.network 'forwarded_port', guest: 8080, host: 8080
   
   config.vm.provision 'shell', inline: <<-SHELL
+	# Configuration
+	export TOMCAT_VERSION=9.0.14
+  
 	# Update machine
 	sudo apt-get update
 
@@ -19,9 +22,9 @@ Vagrant.configure("2") do |config|
 	# Install & Configure Tomcat 9
 	sudo groupadd tomcat
 	cd /tmp
-	wget -q http://apache.mirror.ipcheck.nu/tomcat/tomcat-9/v9.0.13/bin/apache-tomcat-9.0.13.tar.gz
+	wget -q http://apache.mirror.ipcheck.nu/tomcat/tomcat-9/v${TOMCAT_VERSION}/bin/apache-tomcat-${TOMCAT_VERSION}.tar.gz
 	sudo mkdir /opt/tomcat
-	sudo tar xzvf /tmp/apache-tomcat-9.*.tar.gz -C /opt/tomcat --strip-components=1
+	sudo tar xzvf /tmp/apache-tomcat-${TOMCAT_VERSION}.tar.gz -C /opt/tomcat --strip-components=1
 	cd /opt/tomcat
 	sudo chmod -R 777 /opt/tomcat
 	sudo cp /vagrant/tomcat.service /etc/systemd/system/tomcat.service

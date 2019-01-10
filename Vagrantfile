@@ -4,8 +4,6 @@ Vagrant.configure("2") do |config|
   end
   config.vm.box = "ubuntu/xenial64"
   config.vm.network "private_network", ip: "192.168.50.12"
-  
-  # Port 
   config.vm.network 'forwarded_port', guest: 80, host: 80
   config.vm.network 'forwarded_port', guest: 1099, host: 1099
   config.vm.network 'forwarded_port', guest: 1100, host: 1100
@@ -21,7 +19,7 @@ Vagrant.configure("2") do |config|
 	# Download & Install Java
 	apt-get install openjdk-8-jdk -y
 
-	# Download, Extract & Change Permissions
+	# Download, Extract Tomcat & Change Permissions Tomcat
 	groupadd tomcat
 	cd /tmp
 	wget -q http://apache.mirror.ipcheck.nu/tomcat/tomcat-9/v${TOMCAT_VERSION}/bin/apache-tomcat-${TOMCAT_VERSION}.tar.gz
@@ -31,7 +29,7 @@ Vagrant.configure("2") do |config|
 	chmod -R 777 /opt/tomcat
 	cp /vagrant/tomcat.service /etc/systemd/system/tomcat.service
 	
-	# Add User & Change File Locking Configuration
+	# Add User & Change File Locking Configuration Tomcat
 	sed -i 's|</tomcat-users>|<user username="admin" password="password" roles="manager-gui,admin-gui"/></tomcat-users>|' /opt/tomcat/conf/tomcat-users.xml
 	sed -i 's|<Context antiResourceLocking="false" privileged="true" >|<Context antiResourceLocking="false" privileged="true" ><!--|' /opt/tomcat/webapps/manager/META-INF/context.xml
 	sed -i 's|</Context>|--></Context>|' /opt/tomcat/webapps/manager/META-INF/context.xml

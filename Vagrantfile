@@ -10,16 +10,16 @@ Vagrant.configure("2") do |config|
   config.vm.network 'forwarded_port', guest: 8080, host: 8080
   
   config.vm.provision 'shell', inline: <<-SHELL
-	# Configuration
+	# Box Configuration
 	export TOMCAT_VERSION=9.0.14
   
 	# Update machine
 	sudo apt-get update
 
-	# Install Java 8
+	# Download & Install Java
 	sudo apt-get install openjdk-8-jdk -y
 
-	# Install & Configure Tomcat 9
+	# Download, Extract & Change Permissions
 	sudo groupadd tomcat
 	cd /tmp
 	wget -q http://apache.mirror.ipcheck.nu/tomcat/tomcat-9/v${TOMCAT_VERSION}/bin/apache-tomcat-${TOMCAT_VERSION}.tar.gz
@@ -28,15 +28,17 @@ Vagrant.configure("2") do |config|
 	cd /opt/tomcat
 	sudo chmod -R 777 /opt/tomcat
 	sudo cp /vagrant/tomcat.service /etc/systemd/system/tomcat.service
-	sudo systemctl daemon-reload
-	sudo systemctl start tomcat
-	sudo systemctl status tomcat
-	sudo systemctl enable tomcat
+	
+	# Add User & Change File Locking Configuration
 	sed -i 's|</tomcat-users>|<user username="admin" password="password" roles="manager-gui,admin-gui"/></tomcat-users>|' /opt/tomcat/conf/tomcat-users.xml
 	sed -i 's|<Context antiResourceLocking="false" privileged="true" >|<Context antiResourceLocking="false" privileged="true" ><!--|' /opt/tomcat/webapps/manager/META-INF/context.xml
 	sed -i 's|</Context>|--></Context>|' /opt/tomcat/webapps/manager/META-INF/context.xml
 	sed -i 's|<Context antiResourceLocking="false" privileged="true" >|<Context antiResourceLocking="false" privileged="true" ><!--|' /opt/tomcat/webapps/host-manager/META-INF/context.xml
 	sed -i 's|</Context>|--></Context>|' /opt/tomcat/webapps/host-manager/META-INF/context.xml
+	
+	# Start Tomcat
+	sudo systemctl daemon-reload
+	sudo systemctl enable tomcat
 	sudo systemctl restart tomcat
   SHELL
 end
